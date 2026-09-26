@@ -17,6 +17,7 @@ interface JointState {
   loadAll: () => Promise<void>
   addJoint: (draft: JointDraft) => Promise<JointType>
   addFurniture: (draft: FurnitureDraft) => Promise<Furniture>
+  setJointDeprecated: (jointId: string, deprecated: boolean) => Promise<void>
   setSelectedJoint: (id: string) => void
   updateMemberDimensions: (
     memberId: string,
@@ -83,6 +84,15 @@ export const useJointStore = create<JointState>((set, get) => ({
     await db.furniture.add(furniture)
     set((state) => ({ furniture: [...state.furniture, furniture] }))
     return furniture
+  },
+
+  setJointDeprecated: async (jointId, deprecated) => {
+    await db.joints.update(jointId, { deprecated })
+    set((state) => ({
+      joints: state.joints.map((joint) => (
+        joint.id === jointId ? { ...joint, deprecated } : joint
+      )),
+    }))
   },
 
   setSelectedJoint: (id) => set({ selectedJointId: id }),

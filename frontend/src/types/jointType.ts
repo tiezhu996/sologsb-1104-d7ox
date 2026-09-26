@@ -9,5 +9,7 @@ export interface JointType {
   difficulty: JointDifficulty
   strengthNote: string
   glueNeeded: boolean
+  /** 停用标记。旧数据没有该字段，按在用处理 */
+  deprecated?: boolean
   schemaRev?: number
 }
