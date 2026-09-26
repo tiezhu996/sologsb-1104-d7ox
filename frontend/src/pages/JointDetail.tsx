@@ -18,6 +18,7 @@ export default function JointDetail() {
   const loading = useJointStore((state) => state.loading)
   const loadAll = useJointStore((state) => state.loadAll)
   const updateMemberDimensions = useJointStore((state) => state.updateMemberDimensions)
+  const setJointDisabled = useJointStore((state) => state.setJointDisabled)
   const { steps, totalDurationSec, currentStepIndex, move, setCurrentStep } = useStepOrder(id)
 
   useEffect(() => {
@@ -58,6 +59,9 @@ export default function JointDetail() {
               <span className="rounded-full border border-wood-100 bg-white px-3 py-1 text-xs text-wood-700">{joint.family}</span>
               <DifficultyTag difficulty={joint.difficulty} />
               <span className="text-xs text-stone-500">{joint.glueNeeded ? '建议配合胶合' : '可拆式干装'}</span>
+              {joint.disabled ? (
+                <span className="rounded-full bg-stone-200 px-3 py-1 text-xs font-medium text-stone-600" data-testid="tag-joint-disabled">已停用</span>
+              ) : null}
             </div>
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-wood-900 sm:text-4xl">{joint.name} · 结构详情</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-stone-600">{joint.strengthNote}</p>
@@ -72,6 +76,14 @@ export default function JointDetail() {
           <Link className="primary-button" to={`/joints/${joint.id}/steps`}>编排拆装步序</Link>
           <Link className="secondary-button" to={`/joints/${joint.id}/diagram`}>进入示意图绘制台</Link>
           <button type="button" className="secondary-button" onClick={() => void exportJointData(joint.id, joint.name)}>导出当前类型</button>
+          <button
+            type="button"
+            className="secondary-button"
+            data-testid="toggle-joint-disabled"
+            onClick={() => void setJointDisabled(joint.id, !joint.disabled)}
+          >
+            {joint.disabled ? '恢复启用此类型' : '停用此类型'}
+          </button>
         </div>
       </section>
 

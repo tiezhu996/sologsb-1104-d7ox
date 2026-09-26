@@ -17,6 +17,7 @@ interface JointState {
   loadAll: () => Promise<void>
   addJoint: (draft: JointDraft) => Promise<JointType>
   addFurniture: (draft: FurnitureDraft) => Promise<Furniture>
+  setJointDisabled: (jointId: string, disabled: boolean) => Promise<void>
   setSelectedJoint: (id: string) => void
   updateMemberDimensions: (
     memberId: string,
@@ -83,6 +84,15 @@ export const useJointStore = create<JointState>((set, get) => ({
     await db.furniture.add(furniture)
     set((state) => ({ furniture: [...state.furniture, furniture] }))
     return furniture
+  },
+
+  setJointDisabled: async (jointId, disabled) => {
+    await db.joints.update(jointId, { disabled })
+    set((state) => ({
+      joints: state.joints.map((joint) => (
+        joint.id === jointId ? { ...joint, disabled } : joint
+      )),
+    }))
   },
 
   setSelectedJoint: (id) => set({ selectedJointId: id }),

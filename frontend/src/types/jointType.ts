@@ -9,5 +9,6 @@ export interface JointType {
   difficulty: JointDifficulty
   strengthNote: string
   glueNeeded: boolean
+  disabled?: boolean
   schemaRev?: number
 }

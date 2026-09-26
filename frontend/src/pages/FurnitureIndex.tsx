@@ -28,16 +28,17 @@ export default function FurnitureIndex() {
   const addFurniture = useJointStore((state) => state.addFurniture)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<FurnitureFormState>(initialForm)
+  const activeJoints = joints.filter((joint) => !joint.disabled)
 
   useEffect(() => {
     void loadAll()
   }, [loadAll])
 
   useEffect(() => {
-    if (!form.jointTypeId && joints[0]) {
-      setForm((current) => ({ ...current, jointTypeId: joints[0]?.id ?? '' }))
+    if (!activeJoints.some((joint) => joint.id === form.jointTypeId)) {
+      setForm((current) => ({ ...current, jointTypeId: activeJoints[0]?.id ?? '' }))
     }
-  }, [form.jointTypeId, joints])
+  }, [form.jointTypeId, activeJoints])
 
   const submitFurniture = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -49,7 +50,7 @@ export default function FurnitureIndex() {
       position: form.position.trim(),
       loadNote: form.loadNote.trim(),
     })
-    setForm({ ...initialForm, jointTypeId: joints[0]?.id ?? '' })
+    setForm({ ...initialForm, jointTypeId: activeJoints[0]?.id ?? '' })
     setShowForm(false)
   }
 
@@ -78,7 +79,7 @@ export default function FurnitureIndex() {
             type="button"
             className="primary-button"
             data-testid="new-furniture"
-            disabled={joints.length === 0}
+            disabled={activeJoints.length === 0}
             onClick={() => setShowForm(true)}
           >
             <span className="text-lg leading-none">＋</span>
@@ -106,7 +107,7 @@ export default function FurnitureIndex() {
                 value={form.jointTypeId}
                 onChange={(event) => setForm((current) => ({ ...current, jointTypeId: event.target.value }))}
               >
-                {joints.map((joint) => <option key={joint.id} value={joint.id}>{joint.name}</option>)}
+                {activeJoints.map((joint) => <option key={joint.id} value={joint.id}>{joint.name}</option>)}
               </select>
             </label>
             <label className="space-y-1.5 text-sm">
@@ -194,9 +195,14 @@ export default function FurnitureIndex() {
                         <span className="rounded-full bg-wood-50 px-2.5 py-1 text-xs text-wood-700">{item.era}</span>
                         <span className="text-sm font-medium text-stone-900">{item.position}</span>
                         {joint ? (
-                          <Link className="ml-auto text-xs font-semibold text-wood-700 underline-offset-4 hover:underline" to={`/joints/${joint.id}`}>
-                            榫卯：{joint.name}
-                          </Link>
+                          <span className="ml-auto inline-flex items-center gap-2">
+                            {joint.disabled ? (
+                              <span className="rounded-full bg-stone-200 px-2 py-0.5 text-[11px] font-medium text-stone-600" data-testid="tag-joint-disabled">已停用</span>
+                            ) : null}
+                            <Link className="text-xs font-semibold text-wood-700 underline-offset-4 hover:underline" to={`/joints/${joint.id}`}>
+                              榫卯：{joint.name}
+                            </Link>
+                          </span>
                         ) : null}
                       </div>
                       <p className="mt-2 text-sm leading-6 text-stone-600">{item.loadNote}</p>

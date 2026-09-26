@@ -34,8 +34,9 @@ export default function JointList() {
   const addJoint = useJointStore((state) => state.addJoint)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<JointFormState>(initialForm)
-  const familyGroups = Array.from(new Set([...families, ...joints.map((joint) => joint.family)]))
-  const difficultyGroups = Array.from(new Set([...difficulties, ...joints.map((joint) => joint.difficulty)]))
+  const activeJoints = joints.filter((joint) => !joint.disabled)
+  const familyGroups = Array.from(new Set([...families, ...activeJoints.map((joint) => joint.family)]))
+  const difficultyGroups = Array.from(new Set([...difficulties, ...activeJoints.map((joint) => joint.difficulty)]))
 
   useEffect(() => {
     void loadAll()
@@ -65,7 +66,7 @@ export default function JointList() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="rounded-xl border border-wood-100 bg-white px-4 py-2.5 text-sm text-stone-600 shadow-sm">
-            已收录 <span className="mx-1 text-lg font-bold text-wood-700" data-testid="count-joint">{joints.length}</span> 类
+            已收录 <span className="mx-1 text-lg font-bold text-wood-700" data-testid="count-joint">{activeJoints.length}</span> 类
           </div>
           <button type="button" className="secondary-button" onClick={() => void exportAllData()}>
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" /></svg>
@@ -170,12 +171,12 @@ export default function JointList() {
         </form>
       ) : null}
 
-      {joints.length === 0 && !loading ? (
-        <BlankPanel title="图鉴尚无记录" description="点击“新建榫卯类型”，录入第一项木作节点。" />
+      {activeJoints.length === 0 && !loading ? (
+        <BlankPanel title="图鉴尚无在用记录" description="点击“新建榫卯类型”录入，或到详情页恢复已停用的类型。" />
       ) : (
         <div className="space-y-7">
           {familyGroups.map((family) => {
-            const familyJoints = joints.filter((joint) => joint.family === family)
+            const familyJoints = activeJoints.filter((joint) => joint.family === family)
             if (familyJoints.length === 0) return null
             return (
               <section key={family} className="space-y-4">
